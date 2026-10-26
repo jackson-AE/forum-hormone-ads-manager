@@ -1,35 +1,7 @@
-const crypto = require("crypto");
-
 const APPS_SCRIPT_URL = process.env.HORMONE_APPS_SCRIPT_URL || "";
 const APPS_SCRIPT_SECRET = process.env.HORMONE_APPS_SCRIPT_SECRET || "";
-const DASHBOARD_PASSWORD = process.env.HORMONE_DASHBOARD_PASSWORD || "";
-const COOKIE_NAME = "fh_hormone_auth";
 
 let lastGoodPayload = null;
-
-function parseCookies(header) {
-  return String(header || "").split(";").reduce((cookies, part) => {
-    const index = part.indexOf("=");
-    if (index > -1) cookies[part.slice(0, index).trim()] = decodeURIComponent(part.slice(index + 1).trim());
-    return cookies;
-  }, {});
-}
-
-function signSession(timestamp) {
-  return crypto.createHmac("sha256", DASHBOARD_PASSWORD).update(String(timestamp)).digest("hex");
-}
-
-function hasValidSession(req) {
-  if (!DASHBOARD_PASSWORD) return false;
-  const token = parseCookies(req.headers.cookie)[COOKIE_NAME] || "";
-  const [timestamp, signature] = token.split(".");
-  if (!timestamp || !signature) return false;
-  const ageMs = Date.now() - Number(timestamp);
-  if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs > 12 * 60 * 60 * 1000) return false;
-  const expected = signSession(timestamp);
-  if (signature.length !== expected.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-}
 
 async function loadReportingData() {
   if (!APPS_SCRIPT_URL || !APPS_SCRIPT_SECRET) {
@@ -65,11 +37,6 @@ module.exports = async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     res.status(405).json({ error: "Method not allowed" });
-    return;
-  }
-
-  if (!hasValidSession(req)) {
-    res.status(401).json({ error: "Password required" });
     return;
   }
 

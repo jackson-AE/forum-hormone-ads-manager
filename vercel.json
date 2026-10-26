@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/dashboard.html"
+      "destination": "/ads-manager.html"
     },
     {
       "source": "/ads-manager",
-      "destination": "/dashboard.html"
+      "destination": "/ads-manager.html"
     }
   ]
 }
