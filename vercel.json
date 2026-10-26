@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/ads-manager",
+      "destination": "/dashboard.html"
+    }
+  ]
+}
