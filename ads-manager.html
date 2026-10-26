@@ -498,7 +498,13 @@ function parseDate(value){
   const s=String(value||"").trim();
   const dmy=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   if(dmy)return new Date(+dmy[3],+dmy[2]-1,+dmy[1]);
-  const d=new Date(s+"T00:00:00");
+  const named=s.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if(named){
+    const month=["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+      .indexOf(named[2].toLowerCase());
+    if(month>=0)return new Date(+named[3],month,+named[1]);
+  }
+  const d=new Date(/^\d{4}-\d{1,2}-\d{1,2}$/.test(s)?s+"T00:00:00":s);
   return d;
 }
 function isoDate(date){
